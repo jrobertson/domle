@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name = 'domle'
-  s.version = '0.1.0'
-  s.summary = 'The document object model used by the Svgle gem'
+  s.version = '0.1.1'
+  s.summary = 'Domle (DOM + Rexle) is the document object model used by the Svgle gem'
   s.authors = ['James Robertson']
   s.files = Dir['lib/domle.rb']
   s.add_runtime_dependency('rexle', '~> 1.3', '>=1.3.9')
