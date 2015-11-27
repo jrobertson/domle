@@ -39,7 +39,7 @@ class Attributes
     if @style.nil? then
 
       h = self[:style].split(';').inject({}) do |r, x|
-        k, v = x.split(':',2)
+        k, v = x.split(':',2).map(&:strip)
         r.merge(k.to_sym => v)
       end
 
