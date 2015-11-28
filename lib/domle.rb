@@ -129,14 +129,13 @@ class Domle < Rexle
 
       raw_selector,raw_styles = entry.split(/{/,2)
 
-      h = raw_styles.split(/;/).inject({}) do |r, x| 
+      h = raw_styles.strip.split(/;/).inject({}) do |r, x| 
         k, v = x.split(/:/,2).map(&:strip)
         r.merge(k.to_sym => v)
       end
 
       [raw_selector.split(/,\s*/).map(&:strip), h]
     end      
-
     
     # add each CSS style attribute to the element
     # e.g. a = [[['line'],{stroke: 'green'}]]
@@ -176,25 +175,29 @@ class Domle < Rexle
     if children then
 
       children.each do |x|
+        
         if x.is_a? Array then
 
           element.add_element scan_element(*x)        
+          
         elsif x.is_a? String then
 
-          e = if x.is_a? String then
+          if x.is_a? String  then
 
-            x
+            element.add_element(x) if x.strip.length > 0
+            
           elsif x.name == '![' then
 
-            Rexle::CData.new(x)
+            e = Rexle::CData.new(x)
+            element.add_element e
             
           elsif x.name == '!-' then
 
-            Rexle::Comment.new(x)
+            e = Rexle::Comment.new(x)
+            element.add_element e
             
           end
-
-          element.add_element e
+          
         end
       end
     end
