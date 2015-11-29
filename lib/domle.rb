@@ -110,6 +110,7 @@ class Domle < Rexle
   end
 
   def initialize(x=nil, callback: nil)
+
     super x    
     find_add_css()
     @callback = callback
@@ -121,7 +122,7 @@ class Domle < Rexle
   
   private
   
-  def add_css(s)
+  def add_css(s, override: true)
 
     # parse the CSS
     
@@ -147,8 +148,8 @@ class Domle < Rexle
       selectors.each do |selector|
 
         style.each do |k,v|
-          self.css(selector).each do |element| 
-            element.style[k] = v unless element.style.has_key? k
+          self.css(selector).each do |element|
+            element.style[k] = v unless override == false and element.style.has_key? k
           end
         end
 
