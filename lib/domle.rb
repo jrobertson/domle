@@ -148,7 +148,9 @@ class Domle < Rexle
       selectors.each do |selector|
 
         style.each do |k,v|
-          self.css(selector).each do |element|
+
+          self.root.css(selector).each do |element|
+
             element.style[k] = v unless override == false and element.style.has_key? k
           end
         end
