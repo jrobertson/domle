@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'domle'
-  s.version = '0.1.5'
+  s.version = '0.1.6'
   s.summary = 'Domle (DOM + Rexle) is the document object model used by the Svgle gem'
   s.authors = ['James Robertson']
   s.files = Dir['lib/domle.rb']
@@ -9,6 +9,6 @@ Gem::Specification.new do |s|
   s.signing_key = '../privatekeys/domle.pem'
   s.cert_chain  = ['gem-public_cert.pem']
   s.license = 'MIT'
-  s.email = 'james@r0bertson.co.uk'
+  s.email = 'james@jamesrobertson.eu'
   s.homepage = 'https://github.com/jrobertson/domle'
 end
