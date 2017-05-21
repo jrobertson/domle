@@ -111,13 +111,50 @@ class Domle < Rexle
 
   def initialize(x=nil, callback: nil)
 
-    super x    
+    super x
+
     find_add_css()
     @callback = callback
   end  
   
   def refresh()
     @callback.refresh if @callback
+  end
+  
+  protected
+  
+  def add_default_css()
+  end
+  
+  def add_external_css()
+    
+    # check for an external CSS file
+    if @instructions and @instructions.any? then
+
+      hrefs = @instructions.inject([]) do |r,x| 
+
+        if x[0] =~ /xml-stylesheet/i and x[1] =~ /text\/css/i then
+
+          r << x[1][/href\s*=\s*["']([^'"]+)/,1]
+        else
+          r
+        end
+      end
+      
+      add_css hrefs.map{|x| RXFHelper.read(x).first}.join
+      
+    end
+    
+  end
+  
+  def add_inline_css()
+    @doc.root.xpath('//style').each {|e|  add_css e.text } 
+  end
+  
+  def find_add_css()
+    add_default_css()
+    add_inline_css()
+    add_external_css()
   end
   
   private
@@ -160,11 +197,13 @@ class Domle < Rexle
     
   end
 
-  def defined_elements()  
-    
-    # override this method in your own class
-    
-  end
+  # override this method in your own class
+  #
+  def defined_elements()
+    {
+      doc: Rexle::Element      
+    }
+  end  
 
   def scan_element(name, attributes=nil, *children)
 
