@@ -55,7 +55,7 @@ class Domle < Rexle
   
   class Element < Rexle::Element
 
-    def initialize(name=nil, value: nil, \
+    def initialize(name=self.class.to_s.downcase[/\w+$/], value: nil, \
                           attributes: Attributes.new(parent: self), rexle: nil)
       
       attributes.merge!(style: '') unless attributes.has_key? :style
