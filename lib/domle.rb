@@ -78,7 +78,7 @@ class Domle < Rexle
 
           define_method (attribute.to_s + '=').to_sym do |val|
             attributes[attribute] = val
-            @rexle.refresh
+            @rexle.refresh if @rexle
             val
           end
 
