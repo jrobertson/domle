@@ -109,12 +109,12 @@ class Domle < Rexle
 
   end
 
-  def initialize(x=nil, callback: nil)
+  def initialize(x=nil, callback: nil, rexle: self)
 
-    super x
-
+    super x, rexle: rexle
     find_add_css()
     @callback = callback
+    
   end  
   
   def refresh()
@@ -212,7 +212,7 @@ class Domle < Rexle
 
     type = defined_elements()
 
-    element = type[name.to_sym].new(name, attributes: attributes, rexle: self)  
+    element = type[name.to_sym].new(name, attributes: attributes, rexle: @rexle)  
 
     if children then
 
