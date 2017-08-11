@@ -19,17 +19,18 @@ class Style < Hash
 
     super(k,v)
     @parent[:style] = self.map{|x| x.join(':') }.join(';')
-    @parent.callback.refresh
+    @parent.callback.refresh if @parent.callback
     
   end
 end
 
-class Attributes
+class VisualAttributes < Attributes
   
   attr_reader :callback
   
-  def initialize(parent: nil)
+  def initialize(x, parent: nil)
     @callback = parent
+    self.merge! x if x
   end  
   
   def style(parent=nil)
@@ -55,11 +56,12 @@ class Domle < Rexle
   
   class Element < Rexle::Element
 
+    @default = {}
     def initialize(name=self.class.to_s.downcase[/\w+$/], value: nil, \
-                          attributes: Attributes.new(parent: self), rexle: nil)
+                          attributes: VisualAttributes.new(parent: self), rexle: nil)
       
       attributes.merge!(style: '') unless attributes.has_key? :style
-      super(name, value: value, attributes: attributes, rexle: rexle)
+      super(name, value: value, attributes: VisualAttributes.new(attributes), rexle: rexle)
       
     end
     
