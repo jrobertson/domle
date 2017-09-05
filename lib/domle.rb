@@ -214,7 +214,8 @@ class Domle < Rexle
 
     type = defined_elements()
 
-    element = type[name.to_sym].new(name, attributes: attributes, rexle: @rexle)  
+    klass_element = type[name.to_sym] || Element
+    element = klass_element.new(name, attributes: attributes, rexle: @rexle)
 
     if children then
 
