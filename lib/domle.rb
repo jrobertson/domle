@@ -3,6 +3,7 @@
 # file: domle.rb
 
 require 'rexle'
+require 'csslite'
 require 'rxfhelper'
 
 
@@ -163,39 +164,8 @@ class Domle < Rexle
   
   def add_css(s, override: true)
 
-    # parse the CSS
-    
-    a = s.split(/}/)[0..-2].map do |entry|
-
-      raw_selector,raw_styles = entry.split(/{/,2)
-
-      h = raw_styles.strip.split(/;/).inject({}) do |r, x| 
-        k, v = x.split(/:/,2).map(&:strip)
-        r.merge(k.to_sym => v)
-      end
-
-      [raw_selector.split(/,\s*/).map(&:strip), h]
-    end      
-    
-    # add each CSS style attribute to the element
-    # e.g. a = [[['line'],{stroke: 'green'}]]
-
-    a.each do |x|
-
-      selectors, style = x
-
-      selectors.each do |selector|
-
-        style.each do |k,v|
-
-          self.root.css(selector).each do |element|
-
-            element.style[k] = v unless override == false and element.style.has_key? k
-          end
-        end
-
-      end
-    end
+    css = CSSLite.new s
+    css.propagate self.root    
     
   end
 
