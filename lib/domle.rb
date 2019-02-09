@@ -112,11 +112,11 @@ class Domle < Rexle
 
   end
 
-  def initialize(x=nil, callback: nil, rexle: self)
+  def initialize(x='<svg/>', callback: nil, rexle: self, debug: false)
 
     super x, rexle: rexle
-    find_add_css()
-    @callback = callback
+    find_add_css() if x
+    @callback, @debug = callback, debug
     
   end  
   
