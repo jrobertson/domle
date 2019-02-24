@@ -120,6 +120,11 @@ class Domle < Rexle
     
   end  
   
+   def element_by_id(id)
+      @doc.root.element("//*[@id='#{id}']")
+   end        
+
+  
   def refresh()
     @callback.refresh if @callback
   end
