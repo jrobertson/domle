@@ -69,7 +69,9 @@ class Domle < Rexle
     def self.attr2_accessor(*a)
 
       a.concat %i(id transform)
-      a.concat %i(onload onmousemove onmousedown) # DOM events      
+      # DOM events      
+      a.concat %i(onload onmousemove onmousedown onmouseenter 
+      onmouseleave onclick onscroll) 
       
       a.each do |attribute|
 
@@ -88,6 +90,14 @@ class Domle < Rexle
         end
       end
     end
+    
+    def active?()
+      @active
+    end
+    
+    def active=(v)
+      @active = v
+    end    
     
     def style()
       attributes.style(@rexle)
@@ -114,7 +124,7 @@ class Domle < Rexle
 
   def initialize(x='<svg/>', callback: nil, rexle: self, debug: false)
 
-    super x, rexle: rexle
+    super RXFHelper.read(x).first, rexle: rexle
     find_add_css() if x
     @callback, @debug = callback, debug
     
