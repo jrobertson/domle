@@ -71,7 +71,7 @@ class Domle < Rexle
       a.concat %i(id transform)
       # DOM events      
       a.concat %i(onload onmousemove onmousedown onmouseenter 
-      onmouseleave onclick onscroll) 
+      onmouseleave onclick onscroll onkeydown onkeyup) 
       
       a.each do |attribute|
 
@@ -99,6 +99,17 @@ class Domle < Rexle
       @active = v
     end    
     
+    def classlist()
+      
+      a = attributes[:class]
+      
+      def a.toggle(name)
+        self.include?(name) ? self.delete(name) : self << name
+      end
+      
+      return a
+    end
+    
     def style()
       attributes.style(@rexle)
     end
@@ -121,6 +132,8 @@ class Domle < Rexle
     
 
   end
+  
+  attr_reader :event
 
   def initialize(x='<svg/>', callback: nil, rexle: self, debug: false)
 
@@ -128,13 +141,24 @@ class Domle < Rexle
     find_add_css() if x
     @callback, @debug = callback, debug
     
+    @event = {
+      keydown: []
+    }
+    
   end  
   
-   def element_by_id(id)
-      @doc.root.element("//*[@id='#{id}']")
-   end        
-
+  def addevent_listener(event, method_name)
+        
+    @event[:keydown] << method_name
+    
+  end
+    
   
+  def element_by_id(id)
+    @doc.root.element("//*[@id='#{id}']")
+  end        
+  
+   
   def refresh()
     @callback.refresh if @callback
   end
