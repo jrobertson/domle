@@ -142,14 +142,20 @@ class Domle < Rexle
     @callback, @debug = callback, debug
     
     @event = {
-      keydown: []
+      keydown: [],
+      keyup: [],
+      mousemove: [],
+      mousedown: [],
+      mouseenter: [],
+      mouseleave: [],
+      scroll: []
     }
     
   end  
   
   def addevent_listener(event, method_name)
         
-    @event[:keydown] << method_name
+    @event[event.to_sym] << method_name
     
   end
     
