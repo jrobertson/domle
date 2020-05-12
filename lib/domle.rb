@@ -56,8 +56,24 @@ end
 class Domle < Rexle
   
   class Element < Rexle::Element
+    
+
+    class ClassList
+      
+      def initialize(a, rexle, node)
+        @a, @rexle, @node = a, rexle, node
+      end
+      
+      def toggle(name)
+        @a.include?(name) ? @a.delete(name) : @a << name
+        puts '@rexle?: ' + @rexle.inspect
+        @rexle.refresh_css(@node) if @rexle
+      end        
+    end    
 
     @default = {}
+    @attr_map = {}
+    
     def initialize(name=self.class.to_s.downcase[/\w+$/], value: nil, \
                           attributes: VisualAttributes.new(parent: self), rexle: nil)
       
@@ -83,12 +99,26 @@ class Domle < Rexle
 
           define_method (attribute.to_s + '=').to_sym do |val|
             attributes[attribute] = val
-            @rexle.refresh if @rexle
+            rexle().refresh if rexle?
+            attr_update(attribute, val)
             val
           end
 
         end
       end
+      
+      def rexle?()
+        not @rexle.nil?
+      end
+      
+      def rexle()
+        @rexle
+      end
+            
+    end
+    
+    def self.attr_mapper(h)
+      @attr_map = h
     end
     
     def active?()
@@ -102,12 +132,12 @@ class Domle < Rexle
     def classlist()
       
       a = attributes[:class]
+      cl = ClassList.new(a, @rexle, self)
       
-      def a.toggle(name)
-        self.include?(name) ? self.delete(name) : self << name
-      end
+
       
-      return a
+      
+      return cl
     end
     
     def style()
@@ -122,6 +152,12 @@ class Domle < Rexle
         (x1..x2).include? x and (y1..y2).include? y
       end
     end    
+    
+    private
+    
+    def attr_update(name, val)
+
+    end
   end
   
   class Script < Element
@@ -135,11 +171,19 @@ class Domle < Rexle
   
   attr_reader :event
 
-  def initialize(x='<svg/>', callback: nil, rexle: self, debug: false)
+  def initialize(src='<svg/>', callback: nil, rexle: nil, debug: false)
 
-    super RXFHelper.read(x).first, rexle: rexle
-    find_add_css() if x
-    @callback, @debug = callback, debug
+    @callback, @debug, @rexle = callback, debug, rexle
+    puts 'inside Domle initialize'.info if @debug
+    puts 'src:' + src.inspect if @debug
+
+    @debug = debug = false
+    super(RXFHelper.read(src).first, rexle: self, debug: debug)
+    @debug = debug = true
+    
+    puts 'before find add_css' if @debug
+    find_add_css() if src
+
     
     @event = {
       keydown: [],
@@ -162,11 +206,22 @@ class Domle < Rexle
   
   def element_by_id(id)
     @doc.root.element("//*[@id='#{id}']")
-  end        
+  end
   
+  def elements_by_name(name)
+    @doc.root.xpath("//*[@name='#{name}']")
+  end  
+    
+  def elements_by_tagname(name)
+    @doc.root.xpath("//#{name}")
+  end    
    
   def refresh()
     @callback.refresh if @callback
+  end
+  
+  def refresh_css(node)
+    find_add_css(node.parent)
   end
   
   protected
@@ -174,7 +229,7 @@ class Domle < Rexle
   def add_default_css()
   end
   
-  def add_external_css()
+  def add_external_css(node=nil)
     
     # check for an external CSS file
     if @instructions and @instructions.any? then
@@ -189,29 +244,35 @@ class Domle < Rexle
         end
       end
       
-      add_css hrefs.map{|x| RXFHelper.read(x).first}.join
+      add_css hrefs.map{|x| RXFHelper.read(x).first}.join, node
       
     end
     
   end
   
-  def add_inline_css()
-    @doc.root.xpath('//style').each {|e|  add_css e.text } 
+  def add_inline_css(node=nil)
+    puts 'inside add_inline_css' if @debug
+    @doc.root.xpath('//style').each {|e|  add_css e.text.to_s, node } 
   end
   
-  def find_add_css()
-    add_default_css()
-    add_inline_css()
-    add_external_css()
-  end
+  def find_add_css(node=nil)
+    
+    puts 'inside find_add_css' if @debug
+    add_default_css() unless node
+    add_inline_css(node)
+    add_external_css(node)
+  end    
   
   private
   
-  def add_css(s, override: true)
+  def add_css(s, node=@doc, override: true)
 
-    css = CSSLite.new s
-    css.propagate self.root    
-    
+    puts 'add_css s: ' + s.inspect if @debug
+    css = CSSLite.new s, debug: @debug
+    node ||= @doc
+    puts 'before propagate node: ' + node.inspect
+    css.propagate node
+    puts node.xml if @debug
   end
 
   # override this method in your own class
