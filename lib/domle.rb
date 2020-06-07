@@ -54,6 +54,7 @@ class VisualAttributes < Attributes
 end
 
 class Domle < Rexle
+  using ColouredText
   
   class Element < Rexle::Element
     
@@ -66,16 +67,17 @@ class Domle < Rexle
       
       def toggle(name)
         @a.include?(name) ? @a.delete(name) : @a << name
-        puts '@rexle?: ' + @rexle.inspect
+        puts '@rexle?: ' + @rexle.inspect if @debug
         @rexle.refresh_css(@node) if @rexle
       end        
     end    
 
     @default = {}
     @attr_map = {}
+    attr_reader :attr_map
     
     def initialize(name=self.class.to_s.downcase[/\w+$/], value: nil, \
-                          attributes: VisualAttributes.new(parent: self), rexle: nil)
+                          attributes: {}, rexle: nil)
       
       attributes.merge!(style: '') unless attributes.has_key? :style
       super(name, value: value, attributes: VisualAttributes.new(attributes), rexle: rexle)
@@ -153,10 +155,22 @@ class Domle < Rexle
       end
     end    
     
+    def obj=(v)
+      @obj = v
+    end
+
+    def obj()
+      @obj
+    end
+    
+    
     private
     
     def attr_update(name, val)
-
+      return unless @attr_map
+      puts 'inside attr_update, @attr_map: ' + @attr_map.inspect if @debug
+      name = (@attr_map[name].to_s + '=').to_sym      
+      @obj.method(name).call(val) if @obj.respond_to? name
     end
   end
   
@@ -176,10 +190,9 @@ class Domle < Rexle
     @callback, @debug, @rexle = callback, debug, rexle
     puts 'inside Domle initialize'.info if @debug
     puts 'src:' + src.inspect if @debug
-
-    @debug = debug = false
-    super(RXFHelper.read(src).first, rexle: self, debug: debug)
-    @debug = debug = true
+    
+    super(RXFHelper.read(src).first, rexle: self)
+    @debug = debug
     
     puts 'before find add_css' if @debug
     find_add_css() if src
@@ -270,7 +283,7 @@ class Domle < Rexle
     puts 'add_css s: ' + s.inspect if @debug
     css = CSSLite.new s, debug: @debug
     node ||= @doc
-    puts 'before propagate node: ' + node.inspect
+    puts 'before propagate node: ' + node.inspect if @debug
     css.propagate node
     puts node.xml if @debug
   end

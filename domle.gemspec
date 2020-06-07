@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'domle'
-  s.version = '0.5.0'
+  s.version = '0.5.1'
   s.summary = 'Domle (DOM + Rexle) is the document object model used by the Svgle gem'
   s.authors = ['James Robertson']
   s.files = Dir['lib/domle.rb']
