@@ -20,7 +20,10 @@ class Style < Hash
 
     super(k,v)
     @parent[:style] = self.map{|x| x.join(':') }.join(';')
-    @parent.callback.refresh if @parent.callback
+    
+    if @parent.callback and @parent.callback.respond_to? :refresh then
+      @parent.callback.refresh 
+    end
     
   end
 end
@@ -230,7 +233,7 @@ class Domle < Rexle
   end    
    
   def refresh()
-    @callback.refresh if @callback
+    @callback.refresh if @callback and @callback.respond_to? :refresh
   end
   
   def refresh_css(node)
